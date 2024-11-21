@@ -1,55 +1,19 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
+
+	"indramahesa.dev/gobank/fileops"
 )
 
-type Bank struct {
-	Balance float64
-}
-
-func writeBalanceToFile(accountBalance float64) {
-	jsonString := `{"balance": ` + strconv.Itoa(int(accountBalance)) + `}`
-	err := os.WriteFile("data.json", []byte(jsonString), 0644)
-
-	if err != nil {
-		fmt.Println("Failed to write balance: " + err.Error())
-	}
-}
-
-func readBalanceToFile() float64 {
-	data, err := os.ReadFile("data.json")
-
-	if err != nil {
-		return 0
-	}
-
-	var bank Bank
-
-	err = json.Unmarshal(data, &bank)
-
-	if err != nil {
-		return 0
-	}
-
-	return bank.Balance
-}
-
 func main() {
-	var accountBalance float64 = readBalanceToFile()
+	var accountBalance float64 = fileops.ReadBalanceToFile("data.json")
 	var choice string
 
-	writeBalanceToFile(accountBalance)
+	fileops.WriteBalanceToFile("data.json", accountBalance)
 
-	fmt.Println("Welcome to Go Bank!")
-	fmt.Println("What do you want to do?")
-	fmt.Println("1. Check balance")
-	fmt.Println("2. Deposit Money")
-	fmt.Println("3. Withdraw Money")
-	fmt.Println()
+	initialMessage()
 
 	for choice != "4" {
 		fmt.Print("Your choice: ")
@@ -70,7 +34,7 @@ func main() {
 			}
 
 			accountBalance += float64(depositAmount)
-			writeBalanceToFile(accountBalance)
+			fileops.WriteBalanceToFile("data.json", accountBalance)
 			fmt.Println("Balance updated! New amount: " + strconv.Itoa(int(accountBalance)))
 		case "3":
 			var withdrawAmount int
@@ -89,16 +53,12 @@ func main() {
 			}
 
 			accountBalance -= float64(withdrawAmount)
-			writeBalanceToFile(accountBalance)
+			fileops.WriteBalanceToFile("data.json", accountBalance)
 			fmt.Println("Balance updated! New amount: " + strconv.Itoa(int(accountBalance)))
 		case "exit":
 			return
 		case "help":
-			fmt.Println("Welcome to Go Bank!")
-			fmt.Println("What do you want to do?")
-			fmt.Println("1. Check balance")
-			fmt.Println("2. Deposit Money")
-			fmt.Println("3. Withdraw Money")
+			initialMessage()
 		default:
 			fmt.Println("Menu not found!")
 		}
